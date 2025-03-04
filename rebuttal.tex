@@ -1,0 +1,283 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+\usepackage[rebuttal]{cvpr}
+
+% Include other packages here, before hyperref.
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage[flushleft, para]{threeparttable}
+\usepackage{pifont}
+
+% Import additional packages in the preamble file, before hyperref
+\input{preamble}
+
+% If you comment hyperref and then uncomment it, you should delete
+% egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
+% run, let it finish, and you should be clear).
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+
+
+
+% If you wish to avoid re-using figure, table, and equation numbers from
+% the main paper, please uncomment the following and change the numbers
+% appropriately.
+%\setcounter{figure}{2}
+%\setcounter{table}{1}
+%\setcounter{equation}{2}
+
+% If you wish to avoid re-using reference numbers from the main paper,
+% please uncomment the following and change the counter value to the
+% number of references you have in the main paper (here, 100).
+%\makeatletter
+%\apptocmd{\thebibliography}{\global\c@NAT@ctr 100\relax}{}{}
+%\makeatother
+
+%%%%%%%%% PAPER ID  - PLEASE UPDATE
+\def\paperID{16584} % *** Enter the Paper ID here
+\def\confName{CVPR}
+\def\confYear{2025}
+\newcommand{\rksixcw}{\textcolor{Magenta}{\bf \textbf{@K6CW}}}
+\newcommand{\rtgdr}{\textcolor{RawSienna}{\bf \textbf{@tgdr}}}
+\newcommand{\rfivegnl}{\textcolor{RoyalBlue}{\bf \textbf{@5gnL}}}
+\begin{document}
+
+%%%%%%%%% TITLE - PLEASE UPDATE
+\title{Provenance Detection for AI-Generated Images: Combining Perceptual Hashing, Homomorphic Encryption, and AI Detection Models}  % **** Enter the paper title here
+
+\maketitle
+\thispagestyle{empty}
+\appendix
+
+\noindent We thank all reviewers for their positive feedback! We are glad they find the problem we tackle \emph{important} [\rksixcw] and proposed method \emph{interesting}, \emph{easy} and \emph{straightforward} [\rksixcw, \rtgdr]. We are pleased that they recognize that our method is \emph{novel}, \emph{robust} and \emph{outperforms} existing state of the art [\rtgdr,\rfivegnl]. In response to specific concerns:
+\noindent\rule{\linewidth}{0.5pt}
+\rksixcw: \textbf{\emph{Use of SVM inadequate.}} Use of SVM to convert features extracted from deep learning model to classfication labels is inspired by ablation experiment in appendix of \cite{cozzolino2024raising} in which SVM performs better than other options including deep learning based classifiers.
+
+\noindent \rksixcw:
+\textbf{\emph{Inequitable comparison due to the use of external databases}} We evaluate all three models on the same dataset, namely DiffusionDB. DINOv2 was trained on the LVD-142M database which is disjoint from DiffusionDB; hence, there's no overlap in training and evaluation datasets. 
+
+\noindent \rksixcw:
+\textbf{\emph{Meaning of DFN in Table 1}} We'll clarify DFN refers to Data Filtering Networks which is cited in the table.
+
+\noindent \rksixcw:
+\textbf{\emph{Justification of choice of DINO and SigLIP for feature extraction}} For perceptual hashing, we choose DINOv2 for feature extraction since it is a self-supervised model, purely based on visual similarity. Using a pre-trained classifier or the CLIP image encoder would introduce undesirable semantic bias. SigLIP and DFN based models had best zero shot classification performance in OpenCLIP, and since we leverage these models for zero shot classification, we chose SigLIP and DFN.
+
+\noindent \rksixcw:
+\textbf{\emph{Lack of ablation study}} We conducted an ablation study in which we varied the image encoder, final classification method and method to generate caption wherever applicable. This justifies our choice of AI detection model architecture as shown in \autoref{tab:ablation}. We will elaborate further in final version of the paper.
+\vspace{-10pt}
+
+\begin{table}[h]
+    \centering
+    \scriptsize
+    \begin{tabular}{lccc}
+        \toprule
+        Models & Method & Text Template & Avg Accuracy \\
+        \midrule
+        CLIP ViT-L & SVM & -------------- & 0.622 \\
+        CLIP ViT-L & Zero-shot & Fixed & 0.542 \\
+        CLIP ViT-L & Zero-shot & Generated using BLIP & 0.483 \\
+        DFN ViT-H & Zero-shot & Generated using BLIP & 0.690 \\
+        DFN ViT-H & SVM & -------------- & \textbf{0.767} \\
+        \bottomrule
+    \end{tabular}
+    \vspace{-10pt}
+    \caption{Ablation study on AI detection model architecture.  }
+    \label{tab:ablation}
+\end{table}
+\vspace{-15pt}
+% \noindent\rule{\linewidth}{0.5pt}
+% \rtgdr:
+
+% \noindent\rtgdr:
+
+% \noindent\rule{\linewidth}{0.5pt}
+\noindent\rfivegnl: \textbf{\emph{AI detection models does not generalize well.}} The AI detection model in our work uses a diverse set of generators in test set for evaluation as detailed in L495-506. We observe consistently good performance on unseen datasets, and thus claim that the model does generalize well.
+
+
+\noindent \rfivegnl:
+\textbf{\emph{Performance with uncommon image transformations}} We have re-evaluated the metrics with two additional transformations of random-erasing and random text occlusion \textbf{compunded with} the previously applied transformations, reported in \autoref{tab:bit_acc}.
+% % \vspace{-10pt}
+% \vspace{10pt}
+
+% \begin{table}[!h]
+% \centering
+% \scriptsize
+% \setlength{\tabcolsep}{9pt} % Adjust column padding as needed
+% \begin{tabular}{lccccc}
+% \toprule
+% {Method} & {Brightness} & {Contrast} & {Median} & {Blur} \\
+% \midrule
+% DCT-DWT  & 51.3 & 52.1 & 53.1 & 51.6 \\ 
+% Stable Signature & 77.1  & 71.1  & 70.7  & 49.9 \\
+% NeuralHash & 73.5 & 74.0 & 74.0 & 73.2 \\ 
+% DinoHash & \textbf{92.6} & \textbf{92.8} & \textbf{91.8} & \textbf{87.1} \\ 
+
+% \bottomrule
+% \end{tabular}
+% % \vspace{-10pt}
+% \caption{Bit Accuracy (\%) of different transformations. All transformations also include JPEG compression, crop, erasing and text occlusion. We provide expanded benchmarks in the final version.}
+% \label{tab:bit_acc}
+% \end{table}
+% \vspace{-20pt}
+
+% \noindent\rule{\linewidth}{0.5pt}
+
+\noindent \rtgdr: \textbf{\emph{MP-FHE seems a simple application of an existing cryptographic technique.}} 
+FHEW provides efficiency and bandwidth benefits over methods like BFV due to the non interactive single round nature from client to server, and our Hamming distance code is novel. In addition, we present the first private image matching database that does not leak bits of data with differential privacy.
+% \vspace{-10pt}
+\vspace{-10pt}
+
+\begin{table}[!h]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{9pt} % Adjust column padding as needed
+\begin{tabular}{lccccc}
+\toprule
+{Method} & {Brightness} & {Contrast} & {Median} & {Blur} \\
+\midrule
+DCT-DWT  & 51.3 & 52.1 & 53.1 & 51.6 \\ 
+Stable Signature & 77.1  & 71.1  & 70.7  & 49.9 \\
+NeuralHash & 73.5 & 74.0 & 74.0 & 73.2 \\ 
+DinoHash & \textbf{92.6} & \textbf{92.8} & \textbf{91.8} & \textbf{87.1} \\ 
+
+
+\bottomrule
+\end{tabular}
+
+
+\vspace{-8pt}
+\caption{Bit Accuracy (\%) of different transformations. All transformations are compounded with JPEG compression, crop, erasing and text occlusion. We expand benchmarks in the final version.}
+\label{tab:bit_acc}
+\end{table}
+\vspace{-10pt}
+
+\noindent \rtgdr: \textbf{Efficiency analysis.} DinoHash takes 2.8ms/image compared to 10.2ms/image of NeuralHash. AI detection model inference takes 3.6 ms/image.
+
+\noindent \rksixcw, \rtgdr: \textbf{Lacks MP-FHE computational efficiency analysis} \autoref{tab:fhe_result} profiles latency cost of determining whether two encrypted 96-bit vectors are close in FHEW. We compute Hamming distance ("HD") after a bitwise XOR ("XOR"). We benchmark on a Core i5 laptop, a MacBook, and 56 vCPU server, and shows high parallelism.
+\vspace{-8pt}
+
+\begin{table}[h]
+\centering
+\scriptsize
+% \begin{threeparttable}
+\setlength{\tabcolsep}{11pt}
+\begin{tabular}{ccccc}
+\hline
+System & Cores & XOR & HD & Full Query \\ \hline
+L-i5 & 4 & 200 ms & 1.29 s & 1.3 s \\
+L-i5 & 8 & 105 ms & 747 ms & 773 ms \\
+L-i5 & 16 & 67 ms & 467 ms & 472 ms \\
+MB-M4 & 10 & 59 ms & 421 ms &  440 ms \\
+Server & 56 & 26 ms & 134 ms & 137 ms \\ \hline
+\end{tabular}
+% \begin{tablenotes}
+% %     \item[\ding{85}] Dell 12$^{th}$ Gen i5 
+%     \item[*] Estimated
+%     \item[\ding{112}] MacBook M4 10 Core (6 performance cores) 
+% \end{tablenotes}
+% \end{threeparttable}
+\vspace{-5pt}
+\caption{FHEW Bit Distance Benchmarks on Different Machines}
+\label{tab:fhe_result}
+\end{table}
+\vspace{-10pt}
+
+\noindent \rfivegnl: \textbf{This latency could be unacceptable} Note that our FHEW code is parallelizable and thus faster on large clusters. Note that we can always fall back to Multiparty Computation (MPC) in when 1M+ images are in the database, to ensure low end to end latency.
+
+\noindent \rksixcw: \textbf{How to update and delete DB records.} Updates add a new value to the database, and deletions happen via all DB parties deleting their share of the multiparty DB.
+
+\noindent \rksixcw, \rtgdr:
+\textbf{\emph{Comparison against StegaStamp and Gaussian Shading}} The checkpoints for StegaStamp and GaussianShading are not available online, neither official nor unofficial. Training either model from scratch takes around fourteen days, hence it was not feasible to include the results by the rebuttal deadline. However, we will include them in the camera-ready version of the paper.
+
+%%%%%%%%% BODY TEXT - ENTER YOUR RESPONSE BELOW
+% \section{Introduction}
+
+% After receiving paper reviews, authors may optionally submit a rebuttal to address the reviewers' comments, which will be limited to a {\bf one page} PDF file.
+% Please follow the steps and style guidelines outlined below for submitting your author response.
+
+% The author rebuttal is optional and, following similar guidelines to previous conferences, is meant to provide you with an opportunity to rebut factual errors or to supply additional information requested by the reviewers.
+% It is NOT intended to add new contributions (theorems, algorithms, experiments) that were absent in the original submission and NOT specifically requested by the reviewers.
+% You may optionally add a figure, graph, or proof to your rebuttal to better illustrate your answer to the reviewers' comments.
+
+% Per a passed 2018 PAMI-TC motion, reviewers should refrain from requesting significant additional experiments for the rebuttal or penalize for lack of additional experiments.
+% Authors should refrain from including new experimental results in the rebuttal, especially when not specifically requested to do so by the reviewers.
+% Authors may include figures with illustrations or comparison tables of results reported in the submission/supplemental material or in other papers.
+
+% Just like the original submission, the rebuttal must maintain anonymity and cannot include external links that reveal the author identity or circumvent the length restriction.
+% The rebuttal must comply with this template (the use of sections is not required, though it is recommended to structure the rebuttal for ease of reading).
+
+% %-------------------------------------------------------------------------
+
+% \subsection{Response length}
+% Author responses must be no longer than 1 page in length including any references and figures.
+% Overlength responses will simply not be reviewed.
+% This includes responses where the margins and formatting are deemed to have been significantly altered from those laid down by this style guide.
+% Note that this \LaTeX\ guide already sets figure captions and references in a smaller font.
+
+% %------------------------------------------------------------------------
+% \section{Formatting your Response}
+
+% {\bf Make sure to update the paper title and paper ID in the appropriate place in the tex file.}
+
+% All text must be in a two-column format.
+% The total allowable size of the text area is $6\frac78$ inches (17.46 cm) wide by $8\frac78$ inches (22.54 cm) high.
+% Columns are to be $3\frac14$ inches (8.25 cm) wide, with a $\frac{5}{16}$ inch (0.8 cm) space between them.
+% The top margin should begin 1 inch (2.54 cm) from the top edge of the page.
+% The bottom margin should be $1\frac{1}{8}$ inches (2.86 cm) from the bottom edge of the page for $8.5 \times 11$-inch paper;
+% for A4 paper, approximately $1\frac{5}{8}$ inches (4.13 cm) from the bottom edge of the page.
+
+% Please number any displayed equations.
+% It is important for readers to be able to refer to any particular equation.
+
+% Wherever Times is specified, Times Roman may also be used.
+% Main text should be in 10-point Times, single-spaced.
+% Section headings should be in 10 or 12 point Times.
+% All paragraphs should be indented 1 pica (approx.~$\frac{1}{6}$ inch or 0.422 cm).
+% Figure and table captions should be 9-point Roman type as in \cref{fig:onecol}.
+
+
+% List and number all bibliographical references in 9-point Times, single-spaced,
+% at the end of your response.
+% When referenced in the text, enclose the citation number in square brackets, for example~\cite{Alpher05}.
+% Where appropriate, include the name(s) of editors of referenced books.
+
+% \begin{figure}[t]
+%   \centering
+%   \fbox{\rule{0pt}{0.5in} \rule{0.9\linewidth}{0pt}}
+%   %\includegraphics[width=0.8\linewidth]{egfigure.eps}
+%    \caption{Example of caption.  It is set in Roman so that mathematics
+%    (always set in Roman: $B \sin A = A \sin B$) may be included without an
+%    ugly clash.}
+%    \label{fig:onecol}
+% \end{figure}
+
+% To avoid ambiguities, it is best if the numbering for equations, figures, tables, and references in the author response does not overlap with that in the main paper (the reviewer may wonder if you talk about \cref{fig:onecol} in the author response or in the paper).
+% See \LaTeX\ template for a workaround.
+
+% %-------------------------------------------------------------------------
+% \subsection{Illustrations, graphs, and photographs}
+
+% All graphics should be centered.
+% Please ensure that any point you wish to make is resolvable in a printed copy of the response.
+% Resize fonts in figures to match the font in the body text, and choose line widths which render effectively in print.
+% Readers (and reviewers), even of an electronic copy, may choose to print your response in order to read it.
+% You cannot insist that they do otherwise, and therefore must not assume that they can zoom in to see tiny details on a graphic.
+
+% When placing figures in \LaTeX, it is almost always best to use \verb+\includegraphics+, and to specify the  figure width as a multiple of the line width as in the example below
+% {\small\begin{verbatim}
+%    \usepackage{graphicx} ...
+%    \includegraphics[width=0.8\linewidth]
+%                    {myfile.pdf}
+% \end{verbatim}
+% }
+
+
+%%%%%%%%% REFERENCES
+{
+    \small
+    \bibliographystyle{ieeenat_fullname}
+    \bibliography{main}
+}
+
+\end{document}

@@ -1,0 +1,76 @@
+
+\section{Background}
+In this section, we discuss related work and the essential concepts used our framework. We provide an overview of perceptual hashing techniques, MPC methods, and deep learning-based detectors.
+
+\subsection{Perceptual Hashing}
+
+
+
+Since the MP-FHE scheme requires fuzzy hashes, we require a hashing algorithm that is mostly invariant to perceptual transformations of the image. Several perceptual hashing algorithms exist including aHash (Average Hashing), mHash (Median Hashing), dHash (Difference Hashing), bHash (Block Hashing), wHash (Wavelet Hashing) and the Discrete Fourier Transform Perceptual Hash \cite{Zauner2010ImplementationAB}. These hashing schemes are used by services like Microsoft’s PhotoDNA and Facebook’s PDQ. These hashing algorithms work by dividing images into squares, converting them into a black-and-white format, and quantifying the shading of the squares in different ways. Although these hashes are mostly invariant to color manipulation and noise, they fail when the images are subjected to crops. This is because cropping the image offsets the alignment of the square blocks, heavily altering the hash. 
+
+In recent years, numerous deep hashing algorithms based on convolutional neural networks have been developed~\cite{deep_hashing_compact_codes, deep_supervised_hashing_fast_retrieval, deep_semantic_ranking_hashing_multilabel, deep_supervised_hashing_large_scale}. These methods rely on deep neural networks to extract image features and subsequently compute a hash value based on those features. The resulting hashes capture the semantic content of the image and exhibit greater robustness to transformations like cropping and color adjustments. Apple's Neuralhash \cite{struppek2022learning} was developed for Child Sexual Abuse Material (CSAM) detection. \autoref{fig:perceptual_hash} illustrates one variation of these deep hashing algorithms, which we have adopted and will now discuss in more detail.
+
+
+A perceptual hash function $H \colon \mathbb{R}^{H \times W \times C} \to \{0,1\}^k$ maps an image $x$ to a $k$-bit binary hash. Let $H(x)$ denote the hash function, where $H(x) = \bigl( h_1(x), \ldots, h_k(x) \bigr)$. These algorithms consist of two main components. First, a deep feature extractor $D(x)\colon \mathbb{R}^{H \times W \times C} \to \mathbb{R}^{k}$ generates a feature vector $z \in \mathbb{R}^{k}$ from the image $x$. This feature vector numerically represents the semantic and structural content of the image. Next, locality-sensitive hashing (LSH)~\cite{locality, jafari2021surveylocalitysensitivehashing} is used to assign similar feature vectors to buckets with similar hash values. For each of the $k$ features, the bit value $h_i(x)$ is set to either $1$ or $0$ depending on the sign of $z_i$ using the heaviside step function.
+
+The idea is that transformations applied to the original image do not perturb the feature vector and, consequently, the hash significantly. We would like it if each $h_i(x)$ follows an i.i.d Bernoulli distribution with parameter $0.5$. This is achieved by applying PCA whitening to the feature vector before the LSH step. The statistics needed to compute the PCA weights are obtained by using feature vectors of images from the training data. Now, since each component of the feature vector is independent and has an equal chance of being positive or negative after the binarization step, two randomly chosen images have the least possible probability of having the same hash, specifically $2^{-k}$. To compare the similarity and distance between two hashes, we look at the Hamming distance ($L_1$ distance) between them. We quantify the degree of match between two hashes using the number of bits matched denoted by $M$ where
+
+\vspace{-0.4cm}
+\[
+M(H(x),H(x')) = k - L_1(H(x), H(x'))
+\]
+\vspace{-0.6cm}
+% The susceptibility of deep learning to adversarial attacks warrants a defense mechanism in our framework.
+
+An adversarial attack involves adding a imperceptible amount of crafted perturbation of magnitude $\epsilon$ (typically $<8/255$) to each pixel of an image before passing it into the model \cite{subtle_adversarial}, which causes it to behave against its objective. This perturbation is generally created using information obtained from the model's gradients (white box attacks), which requires complete access to the model's architecture and weights. Other forms of attacks either require access to the model's dataset or output logits (gray box attacks) \cite{papernot2016distillationdefenseadversarialperturbations, inversion_attack, invert}, or only query access (black box attacks). There are two kinds of attacks relevant to perceptual hashes, hash collisions and hash aversions. A hash aversion attack would correspond to a malicious individual perturbing the original image $x$ to generate an image $x'$ that minimizes the similarity score $M$, leading to a false negative detection. A hash collision attack can by synthesized when an adversary has access to a a set of hashes stored by the CPO. This involves attacking a query image so that its hash matches one stored in the database, leading to a false positive detection. Adversarial training alone makes it extremely difficult for an adversary to perform either attack, even with full access to the model's weights. Furthermore, hash collision attacks are impossible to achieve in our framework due to the implementation of the secure MP-FHE scheme, which prevents the adversary's access to the perceptual hashes, even in the case of a data leak.
+
+\citet{struppek2022learning, bhatia2022exploitingdefendingapproximatelinearity} have successfully demonstrated that both hash collisions and hash aversions can be performed against deep hashing networks, highlighting NeuralHash as a specific example. However, it is noteworthy that NeuralHash did not deploy any system to avoid these attacks. Adversarial training combined with the MP-FHE scheme secures our system against both attacks.
+%By combining multiple defenses like input transformation \cite{defensegan, bart, randomizedsmoothing} and adversarial training \cite{ensemble, adversariallogitpairing, pgddefense}, our system can be made robust against hash aversion attacks as well in the future.
+% We discuss this idea in detail in \autoref{sec:future}
+
+
+% We combine the idea of input transformation defenses, specifically BaRT (Barrage of Random Transforms) developed by (cite) and adversarial training in our framework. BaRT works by randomly choosing a set of transformations from several perceptual transformations like JPEG compression, FFT perturbation, zoom, swirl etc. These non-differentiable transformations destroy low-level details of the image that are key to a successful attack. Furthermore, these transformations are applied in a random order and the stochasticity introduced by this process makes it incredibly difficult for an adversary to create an adversarial example. Our experiments demonstrate that even in the presence of adversarial noise within the $\epsilon$-bound, the perceptual hash maintains stability, with the Hamming distance between hashes of the perturbed and original images being insignificantly altered. This robustness facilitates reliable image matching under adversarial conditions even in the case where the adversary has full access to the model and defense technique.
+
+% \begin{table}[t]
+% \footnotesize
+% \centering
+% \begin{tabular}[t]{p{1.2cm} p{6.6cm}}
+% \textbf{Notation} & \textbf{Description} \\ \hline 
+% % $\mathbb{Z}_p$ & $\mathbb{Z}_p: \bigcup i ,\: 0\leq i<p,\: i\in \mathbb{N}=\{0,1,...,p\}$ \\[1ex]
+% % $\mathbb{B}$ & Denotes one bit: $\mathbb{B}\in \mathbb{Z}_2$ \\[1ex]
+% % $A$ & $\alpha_1$ to $\alpha_n$.  $s_i\times \lfloor\log p\rfloor$ bits, i.e.~$\alpha_i\in \ZZ_p^{s_i}$.\\[1ex]
+% $\mathcal{H}_\mathcal{P}$ & The perceptual hash function for an image of size $H{\times} W$. $\mathcal{H}_\mathcal{P}: \mathbb{R}^{H\times W\times C} \rightarrow \ZZ_2^*$ \\%[4ex]
+% $\mathcal{H}_\mathcal{C}$ & Collision-resistant image hash function for an image of size $H{\times} W$. $\mathcal{H}_\mathcal{C}: \ZZ_{256}^{H\times W\times C} \rightarrow \ZZ_2^*$ \\%[4ex]
+% $f{\downarrow}$ & The resize function with arbitrary input size and a fixed output size of $224{\times} 224$ that fits to the model. $f{\downarrow}:\ZZ_{256}^{H\times W\times C}\rightarrow \mathbb{R}^{224\times 224\times C}$ \\%[6ex]
+% $\mathcal{O}(\mathcal{R}, l, i)$ & Opening~(i.e. Merkle path) for the $i$-th leaf with value $l$ in a Merkle tree with root $\mathcal{R}$ and total of $m$ leaves. $\mathcal{O}(\mathcal{R}, l, i): \ZZ_q^3\rightarrow \ZZ_q^{2\times log\:m}$ \\ [1ex]
+% $\mathcal{C}_A$ & Commitment to a video footage. \\ [1ex]
+% $\sigma_x^{}$ & Digital signature of message $x$. \\ [1ex]
+%$S[\omega_1,...,\omega_m]$ & Statement of knowledge with $m$ public values $\bigcup\omega_i$.  \\[1ex]
+%$\mathcal{D}$=($d_p$, $d_v$)  & The pair of proving and verifying keys for $\mathcal{S}$ derived from R1CS of each specific circuit~\cite{spartan}. \\[4ex]
+%Prove($d_p$,...) & Proof generator for $\mathcal{S}$ using $d_p$: Prove($d_p$,...) $\rightarrow \pi$$\in \mathbb{Z}_p$ \\[1ex]
+%Verify($d_v$,$\pi$,...) & Proof verifier of the statement $\mathcal{S}$ using $d_v$ and $\pi$: Verify($d_v$,$\pi$,...) $\rightarrow \{0,1\}$ \\[1ex] 
+
+
+% \hline
+% \end{tabular}
+% \caption{Terminology of the Paper}
+% \label{tab:term}
+% \end{table}
+
+% \subsection{Multi-Party Computation}
+% Table~\ref{tab:term} provides a summary of notations and terminology used in the paper.
+
+% Consider a function f and parties $P_1,…,P_n$, each holding respective private inputs $w_1,…,w_n$. A multi-party computation (MPC) protocol allows these parties to jointly compute $y=f(w_1,…,w_n)$ while revealing only the final result, y. The protocol is deemed secure if no additional information, beyond the output, is leaked, and malicious parties are required to select their inputs independently from the honest parties~\cite{ozdemir2022experimenting}. \\
+% The most widely used MPC protocols operate under the assumption of an honest majority, meaning that security is maintained as long as fewer than half of the n participants (i.e., $t < n/2$) are corrupted. In such cases, a malicious party may still cause the protocol to halt, preventing the result from being disclosed to honest participants. This approach, known as security-with-abort, is sufficient for our purposes. Protocols adhering to this model, or offering stronger guarantees, are generally secure as long as the majority of participants remain honest.~\cite{benhamouda2021generalized}.
+
+% \subsection{Fully Homomorphic Encryption}
+
+
+\subsection{Multi-Party Fully Homomorphic Encryption}
+Multi-party Fully Homomorphic Encryption (MP-FHE) is a cryptographic technique that extends the capabilities of single-party homomorphic encryption to multiple participants. It enables computations being executed on encrypted data without revealing their individual inputs, while the decryption requires parties to perform collaboratively decrypt a result once the computation is complete. The advantage of this approach lies in its ability to preserve privacy while performing complex computations, such as those in secure MPC~\cite{Shamir}. Data confidentiality is an important goal in applications such as privacy-preserving data analysis~\cite{mouchet2021multiparty}.
+
+MP-FHE also builds upon the concept of threshold cryptography, where the decryption process requires the collaboration of a threshold number of parties. This ensures that no single party can decrypt the data independently, enhancing security in scenarios involving untrusted parties. The MP-FHE scheme involves distributing the secret key across parties and utilizing homomorphic properties to perform computations on ciphertexts. Compared to traditional MPC methods like secret sharing, MP-FHE reduces communication overhead, as computations can be performed non-interactively on encrypted data, making it an efficient solution for large-scale, privacy-preserving applications~\cite{mouchet2021multiparty, lee2023efficient}.
+
+\subsection{Deep Learning Based Detectors}
+
+Synthetic images have artifacts that are distinctive to the generation process \cite{marra2019DoGAN, yu2019attributing}. Existing detectors often exploit these fingerprints in spatial \cite{sinitsa2023deep,liu2022detecting,cozzolino2018forensictransfer, marra2019incremental, du2020towards, jeon2020tgd} or frequency \cite{durall2020watch, frank2020leveraging, dzanic2020Fourier} domains to determine whether the image is synthetic or real. This method has two problems: a) Detectors trained on one type of generator do not generalize well on images from unseen generators, and b) transformations like resizing and compression destroy these fingerprints \cite{corvi2023detection}. Recent work exploits VLMs like CLIP \cite{radford2021learning} as feature extractors \cite{sha2023fake, amoroso2023parents, ojha2023towards,cozzolino2024raising} and train a classifier to detect synthetic images. \citet{cozzolino2024raising} clearly shows these models are more accurate and robust under transformations. This work inspired our detector.

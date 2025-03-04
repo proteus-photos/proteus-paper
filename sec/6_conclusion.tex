@@ -1,0 +1,29 @@
+\vspace{0.2cm}
+\section{Limitations and Future Work}
+\label{sec:future}
+Incorporating FHE into the querying process increases computational overhead, which could impact performance in real-time applications. Several algorithms, similar to KD-Trees, allow indexing for nearest-neighbor search of multi-dimensional vectors, however these frameworks cannot be used in conjunction with FHE schemes and keep perfect privacy. Future research could focus on optimizing FHE-based indexing methods for quick retrieval to meet computational demands, or augmenting the Worldcoin Iris matching system or Apple's Wally for our usecase.
+
+One advantage of watermarking over hashing is that watermarking only requires storing \textit{one hash per image creator} for provenance, as it needs only to identify the image’s creator, not each specific image. In contrast, perceptual hashing requires storing \textit{one hash per image}, which increases the search space and reduces computational efficiency in terms of memory usage and speed. However, in cases where each user generates only one image, the memory and computation requirements for nearest-neighbor searches are equivalent for both methods.
+
+Publicly releasing deep watermark encoders or decoders pose huge security risks, as that allows images to be dewatermarked easily. On the contrary, even though deep hashing methods are typically vulnerable to adversarial attacks, these risks can be mitigated through adversarial defense mechanisms so that our framework maintains robustness even against informed attacks, i.e. when the adversary has full access to the model weights, dataset, and components of the defense framework. Future work could include combining adversarial training techniques—such as Ensemble Adversarial Training \cite{ensemble}, Adversarial Logit Pairing \cite{adversariallogitpairing}, and PGD Adversarial Training \cite{pgddefense}—with input transformation defenses like DefenseGAN \cite{defensegan}, BaRT \cite{bart}, Feature Squeezing \cite{feature} and Randomized Smoothing \cite{randomizedsmoothing}.
+
+% Several defense mechanisms have been developed in recent deep learning literature that either can be used to either detect or diffuse adversarial attacks:
+
+
+
+
+% \begin{compactitem}
+%     \item \textbf{Input Transformation Defenses}: Techniques like random resizing, rotation, or smoothing are applied to mitigate the effects of adversarial perturbations. By altering the input image before it is passed through the model, these transformations reduce the likelihood that small perturbations will have a significant impact on the model’s output \cite{defensegan, bart, randomizedsmoothing}
+
+%     \item \textbf{Randomized Smoothing}: This approach adds random noise to inputs during both training and inference. By averaging the model’s predictions over multiple noisy versions of the same input, randomized smoothing creates a “smoothed” model. This method provides certified robustness, ensuring that small adversarial perturbations do not change the model’s prediction \cite{randomizedsmoothing}.
+        
+%     \item \textbf{Adversarial Training}: Adversarial training involves augmenting the training set with adversarial examples, thereby teaching the model to recognize and resist adversarial perturbations. Models trained in this way become more robust to attacks since they learn to produce consistent outputs even when inputs are altered adversarially \cite{ensemble, adversariallogitpairing, pgddefense}.
+
+%     \item \textbf{Adversarial Detection}: Adversarial detection methods aim to identify when an input has been tampered with by adversarial noise. These methods analyze the statistical properties of inputs or examine abnormal behaviour in the model’s intermediate activations to flag attacks \cite{detection1, detection2}. 
+% \end{compactitem}
+
+\vspace{0.2cm}
+\section{Conclusion}
+Our three-part framework addresses significant challenges in AI content provenance detection by combining perceptual hashing, fully homomorphic encryption (FHE), and a robust AI-content detection model. Our perceptual hashing method with DINOV2 overcomes the limitations of traditional watermarking, by capturing semantic and structural image features that persist through common transformations, without altering the base image. Applying FHE within this framework ensures that users can query content databases securely, preserving privacy without compromising the system's integrity, even if some data is exposed. Finally, the AI-generated content detection model increases the framework’s robustness by identifying AI-generated images that may be generated outside the known database.
+
+\clearpage
