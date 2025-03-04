@@ -138,22 +138,18 @@ We would like to mention that we were initially experimenting with DISCO \citenu
 
 \subsection{DL based detector}
 
-\red{
 \citet{schlarmann2024robust} proposed an unsupervised method to adversarially finetune CLIP that preserves performance on downstream tasks. We use this method for adversarial finetuning of our model. We first discuss the method below. Then we discuss our results.
 
 \textbf{Method} We aim to minimize the distance between the embeddings of unattacked images for original CLIP model and corresponding adversarially attacked image for the robust model. The idea is that if embeddings are unaffacted by attack then performance on downstream task will be preserved. In the following we denote with $\phiorg$ the original CLIP encoder which is frozen. $\phi(z)$ is the encoder that is being trained. x is the input image and z is the corresponding adversarially attacked image. We propose the following embedding loss:
 
 \begin{align}\label{eq:fare}
-L_{\textrm{\ours}}(\phi,x)=&\,\max_{\norm{z-x}_\infty \leq \epsilon} \norm{\phi(z)-\phiorg(x)}^2_2.
+L_{\textrm{ours}}(\phi,x)=&\,\max_{\norm{z-x}_\infty \leq \epsilon} \norm{\phi(z)-\phiorg(x)}^2_2.
 \end{align}
 
 \textbf{Training Details} We use PGD attack for training with $\epsilon$ 4 and $l_\infty$ norm. We use 10 iterations of attack per image with batch size of 128. We train for 20000 iterations on ImageNet dataset. We use ADAM optimizer with a learning rate of 1e-5, weight decay of 1e-4 and learning rate warmup of 1400 steps. We use L2 loss for attack. The training parameters are consistent with \citep{schlarmann2024robust}.
 
 \textbf{Results} We do adversarial evaluation for just the finetuned version of our detector with DFN ViT-H backbone and 224 resolution. We evaluate using 100 iterations of APGD attack with binary cross entropy loss. We evaluate non-robust and adversarially finetuned model on clean data, attacked data with epsilon 4 and attacked data with epsilon 8. We present the results in \Cref{tab:robust_dldetector}. We observe that the adversarially trained model's performance does not degrade much on clean data but it performs much better on attacked data.
 
-}
-
-\red{
 \section{Securing User Data without FHE}\label{sec:apx-mpc}
 
 Figure~\ref{fig:protocol} presents an overview of our second proposal, comprising the following key steps:
@@ -165,9 +161,8 @@ Figure~\ref{fig:protocol} presents an overview of our second proposal, comprisin
    \label{fig:protocol}
 \end{figure}
 
-\begin{itemize}
+\begin{compactitem}
     \item[] \circled{1} The \textit{model provider} is responsible for fine-tuning and updating the generative model~(e.g., OpenAI) with write-only access to the TEE. This ensures that the \textit{model provider} cannot eavesdrop on user queries. Additionally, the \textit{model provider} can update the perceptual hash function as needed.\\
-
     \item[] \circled{2}, \circled{3} The user $u_i$ submits a prompt to the server and receives the generated image as the result.\\
     
     \item[] \circled{4} The TEE calculates the pHash of the resulting image $\Delta_i$ and distributes the shared pHash components~($sh_1,\dots, sh_n$) among $n$ parties~($DB_1,\dots,DB_n$). During this phase, neither the generated image nor its related information is stored. No single party can retrieve any information about the image without collaboration from the others.\\
@@ -186,7 +181,7 @@ Figure~\ref{fig:protocol} presents an overview of our second proposal, comprisin
     We note that the prover generates $n$ distinct proofs for $i \in \{1, \dots, n\}$ to ensure each party has received a unique share of $[q]$.\\
     
     \item[] \circled{7} The parties in the MPC-based database verify their received proofs and execute the query for the shared pHash value $[q]$. They then participate in the MPC to execute the given query on the shared DB. Based on the query result, the parties engage in a collaborative zkSNARK protocol to achieve public auditability, as follows:
-    \begin{itemize}
+    \begin{compactitem}
         \item \textbf{Match:} If there is a match, the result of the execution includes the index of the matched values. Therefore, the parties claim the following statement:
         \begin{equation}\label{eq:state-match}
             \begin{split}
@@ -203,10 +198,8 @@ Figure~\ref{fig:protocol} presents an overview of our second proposal, comprisin
             \end{split}
             % \raisetag{20.5pt}
         \end{equation}
-    \end{itemize}
+    \end{compactitem}
     It should be noted that while proving the statement in equation~\ref{eq:state-match} is relatively feasible, the statement in equation~\ref{eq:state-no-match} is computationally expensive. However, we argue that in most scenarios, the most critical supporting proof would be the case where a match is found, as expressed in equation~\ref{eq:state-match}.
 
-\end{itemize}
+\end{compactitem}
 
-
-}
