@@ -54,21 +54,40 @@
 \title{Provenance Detection for AI-Generated Images: Combining Perceptual Hashing, Homomorphic Encryption, and AI Detection Models}
 
 %%%%%%%%% AUTHORS - PLEASE UPDATE
-\author{First Author\\
-Institution1\\
-Institution1 address\\
-{\tt\small firstauthor@i1.org}
+\author{Shree Singhi$^{1,2}$,
+Aayan Yadav$^{1,2}$,
+Aayush Gupta$^{3}$,
+Shahriar Ebrahimi$^{4}$,
+Parisa Hassanizadeh$^{5}$\\
+$^{1}$Indian Institute of Technology Roorkee: \{\textit{shree\_s, aayan\_y}\} @\textit{mfs.iitr.ac.in}, ~~~$^{2}$Zellic\\
+$^{3}$ZK Email: \textit{aayushg@mit.edu},~~~
+$^{4}$Newcastle University: \textit{shahriar.ebrahimi@ncl.ac.uk}\\
+$^{5}$Polish Academy of Science: \textit{parisaa.hassanizadeh@gmail.com}
+}
 % For a paper whose authors are all at the same institution,
 % omit the following lines up until the closing ``}''.
 % Additional authors and addresses can be added with ``\and'',
 % just like the second author.
 % To save space, use either the email address or home page, not both
-\and
-Second Author\\
-Institution2\\
-First line of institution2 address\\
-{\tt\small secondauthor@i2.org}
-}
+% \and
+% Second Author\\
+% Institution2\\
+% First line of institution2 address\\
+% {\tt\small secondauthor@i2.org}
+% }
+
+% \author[1,2]{Shree Singhi}
+% \author[1,2]{Aayan Yadav}
+% \author[3]{Aayush Gupta}
+% \author[4]{Shahriar Ebrahimi}
+% \author[4,5]{Parisa Hassanizadeh}
+% \affil[1]{Zellic}
+% \affil[2]{Indian Institute of Technology Roorkee: \{\textit{shree\_s, aayan\_y}\} @\textit{mfs.iitr.ac.in}}
+% \affil[3]{ZK Email: \textit{aayushg@mit.edu}}
+% \affil[4]{IDEAS NCBR: \{\textit{shahriar.ebrahimi, parisa.hassanizadeh}\} @\textit{ideas-ncbr.pl}}
+% % \affil[2]{University of Warsaw, Poland}
+% \affil[5]{Polish Academy of Science, Poland}
+
 
 \newcommand{\STAB}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
 \newcommand*\yes{\textcolor{teal}{\ding{51}}}
@@ -82,11 +101,14 @@ First line of institution2 address\\
  \maketitle
 
  \begin{strip}
+    \vspace{-1.2cm}
     \centering
     \includegraphics[width=\textwidth]{banner.pdf}
+    \vspace{-0.5cm}
     \captionof{figure}{\textbf{System Overview.} We combine the strengths of our own perceptual hashing model, DinoHash, Multi-Party Fully Homomorphic Encryption (MP-FHE) and improved AI Detection Model to build a robust provenance framework.}
     \label{fig:teaser}
 \end{strip}
+
 
 \input{sec/0_abstract}
 \input{sec/1_intro}
